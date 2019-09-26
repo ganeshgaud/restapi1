@@ -40,5 +40,33 @@ class EmployeeCRUDCBV(View):
             json_data=JSONRenderer().render(msg)
             return HttpResponse(json_data,content_type='application/json')
         msg={'msg':'Enter Valid Employee details'}
+        json_data=JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data,content_type='application/json')
+
+    def put(self,request,*args,**kwargs):
+        json_data=request.body
+        stream=io.BytesIO(json_data)
+        pdata=JSONParser().parse(stream)
+        id=pdata.get('id')
+        emp=Employee.objects.get(id=id)
+        serializer=EmployeeSerializers(emp,data=pdata,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            msg={'msg':'Employee details updated Successfully'}
+            json_data=JSONRenderer().render(msg)
+            return HttpResponse(json_data,content_type='application/json')
+        json_data=JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data,content_type='application/json')
+
+
+
+    def delete(self,request,*args,**kwargs):
+        json_data=request.body
+        stream=io.BytesIO(json_data)
+        pdata=JSONParser().parse(stream)
+        id=pdata.get('id')
+        emp=Employee.objects.get(id=id)
+        emp.delete()
+        msg={'msg':'Employee deleted Successfully'}
         json_data=JSONRenderer().render(msg)
         return HttpResponse(json_data,content_type='application/json')
